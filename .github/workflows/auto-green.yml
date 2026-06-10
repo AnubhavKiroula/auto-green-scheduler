@@ -33,7 +33,7 @@ jobs:
           git config user.name "AnubhavKiroula"
           
           # Add random delay between 6-10 PM effect (sleep 0-90 min)
-          RANDOM_DELAY=$((RANDOM % 5400))
+          RANDOM_DELAY=$((RANDOM % 120))
           echo "Waiting $((RANDOM_DELAY/60)) minutes to look natural..."
           sleep $RANDOM_DELAY
           
