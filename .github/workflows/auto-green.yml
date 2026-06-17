@@ -2,45 +2,52 @@ name: Daily Green Contributions
 
 on:
   schedule:
-    # Runs at 6 PM IST (12:30 PM UTC) - gives 6 hours buffer
+    # Runs at 6 PM IST (12:30 PM UTC)
     - cron: '30 12 * * *'
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
 
 jobs:
   contribute:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        repo: 
-          - name: daily-log
+        repo: [daily-log, learning-notes, snippets]
+        include:
+          - repo: daily-log
             file: log.md
             content: "📅 Daily log: "
-          - name: learning-notes
+          - repo: learning-notes
             file: tips.md
             content: "💡 Note: "
-          - name: snippets
+          - repo: snippets
             file: commands.md
             content: "⚡ Snippet: "
     steps:
-      - name: Make commit (ALWAYS runs)
+      - name: Make 5 commits per repo (15 total)
         run: |
           # Clone the repo
-          git clone https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository_owner }}/${{ matrix.repo.name }}.git
-          cd ${{ matrix.repo.name }}
+          git clone https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository_owner }}/${{ matrix.repo }}.git
+          cd ${{ matrix.repo }}
           
-          # Configure git with YOUR email (REPLACE THESE TWO LINES)
+          # Configure git
           git config user.email "anubhavkiroula1@gmail.com"
           git config user.name "AnubhavKiroula"
           
-          # Add random delay between 6-10 PM effect (sleep 0-90 min)
+          # Detect default branch dynamically
+          DEFAULT_BRANCH=$(git remote show origin | sed -n '/HEAD branch/s/.*: //p')
+          echo "Default branch detected: $DEFAULT_BRANCH"
+          
+          # Random delay (0–90 min)
           RANDOM_DELAY=$((RANDOM % 5400))
           echo "Waiting $((RANDOM_DELAY/60)) minutes to look natural..."
           sleep $RANDOM_DELAY
           
-          # Append timestamp and content
-          echo "${{ matrix.repo.content }}$(date '+%Y-%m-%d %H:%M:%S')" >> ${{ matrix.repo.file }}
+          # Loop: 5 commits
+          for i in 1 2 3 4 5; do
+            echo "${{ matrix.content }}$(date '+%Y-%m-%d %H:%M:%S') - #$i" >> ${{ matrix.file }}
+            git add ${{ matrix.file }}
+            git commit -m "Auto update: $(date '+%Y-%m-%d') - commit $i"
+            sleep 2
+          done
           
-          # Commit and push
-          git add ${{ matrix.repo.file }}
-          git commit -m "Auto update: $(date '+%Y-%m-%d')"
-          git push origin main
+          git push origin $DEFAULT_BRANCH
