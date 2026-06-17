@@ -2,8 +2,8 @@ name: Daily Green Contributions
 
 on:
   schedule:
-    # Runs at 9 PM IST (3:30 PM UTC)
-    - cron: '30 15 * * *'
+    # Runs at 6 PM IST (12:30 PM UTC) - gives 6 hours buffer
+    - cron: '30 12 * * *'
   workflow_dispatch:  # Manual trigger
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
           git config user.name "AnubhavKiroula"
           
           # Add random delay between 6-10 PM effect (sleep 0-90 min)
-          RANDOM_DELAY=$((RANDOM % 120))
+          RANDOM_DELAY=$((RANDOM % 5400))
           echo "Waiting $((RANDOM_DELAY/60)) minutes to look natural..."
           sleep $RANDOM_DELAY
           
